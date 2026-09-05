@@ -1,8 +1,35 @@
+# Credentials and config
 auth.json
+auth.lock
 .env
+config.yaml
+config.yaml.bak.*
+*.bak.*
+
+# Databases (SQLite + WAL/SHM sidecars)
+*.db
+*.db-*
+*.db.*.lock
+
+# Runtime state
 memories/
 sessions/
-state.db
+state/
 state-snapshots/
 backups/
 checkpoints/
+cron/
+pairing/
+.update_check
+.atl/
+
+# Caches and logs
+cache/
+audio_cache/
+image_cache/
+*cache*.json
+*cache*.etag
+logs/
+
+# Lock files
+*.lock
