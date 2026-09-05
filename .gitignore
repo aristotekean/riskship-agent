@@ -1,35 +1,25 @@
-# Credentials and config
-auth.json
-auth.lock
-.env
-config.yaml
-config.yaml.bak.*
-*.bak.*
+# Allowlist: this directory is a Hermes runtime profile full of state,
+# caches and databases. Ignore everything, then whitelist only the
+# files that define the Riskship agent.
+*
 
-# Databases (SQLite + WAL/SHM sidecars)
-*.db
-*.db-*
-*.db.*.lock
+!.gitignore
+!distribution.yaml
+!SOUL.md
+!config.yaml
+!mcp.json
+!README.md
 
-# Runtime state
-memories/
-sessions/
-state/
-state-snapshots/
-backups/
-checkpoints/
-cron/
-pairing/
-.update_check
-.atl/
+# Custom skills only (bundled Hermes skills stay out)
+!skills/
+!skills/severidad/
+!skills/severidad/**
+!skills/formato-ticket/
+!skills/formato-ticket/**
+!skills/deduplicacion/
+!skills/deduplicacion/**
 
-# Caches and logs
-cache/
-audio_cache/
-image_cache/
-*cache*.json
-*cache*.etag
-logs/
-
-# Lock files
-*.lock
+# Cron job definitions only (executions.db, locks and heartbeats stay out)
+!cron/
+!cron/detect.json
+!cron/analyze.json
