@@ -1,0 +1,8 @@
+auth.json
+.env
+memories/
+sessions/
+state.db
+state-snapshots/
+backups/
+checkpoints/
