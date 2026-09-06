@@ -10,11 +10,16 @@ env_requires:
     description: "API key de Fireworks AI"
     required: true
   - name: NEON_READONLY_URL
-    description: "Postgres de Neon, credencial de solo lectura"
-    required: true
+    description: "Postgres de Neon, credencial de solo lectura (reservada para los cron de detección)"
+    required: false
+    default: ""
   - name: LINEAR_API_KEY
     description: "Token de Linear con permiso de escritura"
     required: true
+  - name: LINEAR_TEAM_KEY
+    description: "Clave del equipo de Linear donde se crean los issues (ej. RIS)"
+    required: false
+    default: ""
   - name: ENGRAM_MCP_URL
     description: "Endpoint MCP de Engram"
     required: false
