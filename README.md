@@ -17,10 +17,27 @@ Requisitos del servidor: Linux, Python 3.11 a 3.13, `git`, `curl` y `python3` en
    ```
 
 2. Dar acceso al repositorio privado. El instalador clona con el `git` del sistema,
-   así que la VPS necesita una deploy key de GitHub en `~/.ssh` o un token HTTPS de
-   solo lectura.
+   así que la VPS necesita credenciales que `git` pueda usar. Hay dos opciones:
 
-3. Instalar el perfil desde el repositorio:
+   - **GitHub CLI (recomendado si ya está instalado)**: autenticar `gh` y
+     registrarlo como credential helper de `git`. Después usar la URL HTTPS al
+     instalar el perfil.
+
+     ```bash
+     gh auth login
+     gh auth setup-git
+     ```
+
+   - **Deploy key**: crear una clave SSH en `~/.ssh`, registrarla como deploy key
+     de solo lectura en el repositorio y usar la URL SSH al instalar el perfil.
+
+3. Instalar el perfil desde el repositorio. Con `gh`:
+
+   ```bash
+   hermes profile install https://github.com/aristotekean/riskship-agent.git --alias -y
+   ```
+
+   Con deploy key:
 
    ```bash
    hermes profile install git@github.com:aristotekean/riskship-agent.git --alias -y
