@@ -16,36 +16,38 @@ Requisitos del servidor: Linux, Python 3.11 a 3.13, `git`, `curl` y `python3` en
    curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
    ```
 
-2. Dar acceso al repositorio privado. El instalador clona con el `git` del sistema,
-   así que la VPS necesita credenciales que `git` pueda usar. Hay dos opciones:
+2. Dar acceso al repositorio privado. Hermes clona con un entorno de `git` aislado
+   que ignora la configuración global, así que los credential helpers de `git` no
+   sirven. Hay dos opciones:
 
-   - **GitHub CLI (recomendado si ya está instalado)**: autenticar `gh` y
-     registrarlo como credential helper de `git`. Después usar la URL HTTPS al
-     instalar el perfil.
+   - **GitHub CLI (recomendado)**: autenticar `gh` con un token que tenga el
+     permiso `Contents` de lectura sobre el repositorio, clonar con `gh` y
+     luego instalar el perfil desde el directorio local.
 
      ```bash
      gh auth login
-     gh auth setup-git
+     gh repo clone aristotekean/riskship-agent /root/riskship-agent
+     hermes profile install /root/riskship-agent --alias -y
      ```
 
    - **Deploy key**: crear una clave SSH en `~/.ssh`, registrarla como deploy key
-     de solo lectura en el repositorio y usar la URL SSH al instalar el perfil.
+     de solo lectura en el repositorio e instalar con la URL SSH.
 
-3. Instalar el perfil desde el repositorio. Con `gh`:
+     ```bash
+     hermes profile install git@github.com:aristotekean/riskship-agent.git --alias -y
+     ```
 
-   ```bash
-   hermes profile install https://github.com/aristotekean/riskship-agent.git --alias -y
-   ```
+   No incrustar tokens en la URL HTTPS: Hermes guarda el origen tal cual en el
+   `distribution.yaml` del perfil y el token quedaría escrito en disco.
 
-   Con deploy key:
-
-   ```bash
-   hermes profile install git@github.com:aristotekean/riskship-agent.git --alias -y
-   ```
-
-   Crea `~/.hermes/profiles/riskship`, copia los archivos del agente, genera
+3. Verificar la instalación. `hermes profile install` crea
+   `~/.hermes/profiles/riskship`, copia los archivos del agente, genera
    `.env.EXAMPLE` a partir de `distribution.yaml` y deja el alias `riskship`
    como atajo de `hermes -p riskship`.
+
+   ```bash
+   hermes profile list
+   ```
 
 4. Cargar los secretos. Copiar `.env.EXAMPLE` a `.env` dentro del perfil y completar
    las variables. Ver [Variables de entorno](#variables-de-entorno).
@@ -72,12 +74,17 @@ agente está operativo.
 
 ### Actualizar el agente
 
+`profile update` relee desde el origen registrado al instalar. Si el perfil se
+instaló desde el clon local, primero hay que actualizar ese clon:
+
 ```bash
+git -C /root/riskship-agent pull
 hermes -p riskship profile update
 ```
 
-Vuelve a clonar el repositorio y aplica los cambios. `.env`, bases de datos y estado
-de ejecución se conservan.
+Si se instaló con deploy key, alcanza con el segundo comando: Hermes vuelve a
+clonar el repositorio. En ambos casos `.env`, bases de datos y estado de ejecución
+se conservan.
 
 ## Variables de entorno
 
