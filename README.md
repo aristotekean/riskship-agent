@@ -79,7 +79,7 @@ instaló desde el clon local, primero hay que actualizar ese clon:
 
 ```bash
 git -C /root/riskship-agent pull
-hermes -p riskship profile update
+hermes profile update riskship
 ```
 
 Si se instaló con deploy key, alcanza con el segundo comando: Hermes vuelve a
