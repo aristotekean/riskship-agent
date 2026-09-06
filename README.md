@@ -62,6 +62,35 @@ Requisitos del servidor: Linux, Python 3.11 a 3.13, `git`, `curl` y `python3` en
    Crea la unidad `hermes-gateway-riskship` en systemd, que arranca al boot y corre
    el scheduler.
 
+6. Habilitar el bus de usuario para el servicio. Hermes lanza cada ejecución de
+   cron dentro de un scope transitorio (`systemd-run --user --scope`) y falla si no
+   puede crearlo. Un servicio de sistema no tiene bus D-Bus de usuario, y la unidad
+   generada no lo configura, así que sin este paso el cron dispara a tiempo pero
+   la ejecución termina en `systemd-run --user --scope is unavailable`.
+
+   Reemplazar `<usuario>` y `<uid>` por el usuario del paso anterior (`id -u <usuario>`):
+
+   ```bash
+   sudo loginctl enable-linger <usuario>
+   sudo systemctl start user@<uid>.service
+   sudo mkdir -p /etc/systemd/system/hermes-gateway-riskship.service.d
+   sudo tee /etc/systemd/system/hermes-gateway-riskship.service.d/user-bus.conf > /dev/null <<'EOF'
+   [Service]
+   Environment="XDG_RUNTIME_DIR=/run/user/<uid>"
+   Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/<uid>/bus"
+   EOF
+   sudo systemctl daemon-reload
+   sudo systemctl restart hermes-gateway-riskship
+   ```
+
+   El drop-in es un archivo aparte de la unidad, así que sobrevive si Hermes la
+   regenera. Comprobar que el scope se puede crear:
+
+   ```bash
+   XDG_RUNTIME_DIR=/run/user/<uid> DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/<uid>/bus \
+     systemd-run --user --scope --collect /bin/true && echo OK
+   ```
+
 ### Verificación
 
 ```bash
