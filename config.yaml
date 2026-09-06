@@ -5,12 +5,13 @@ model:
 agent:
   max_turns: 150
 terminal:
-  backend: ssh
+  backend: local
 display:
   tool_progress: all
 plugins:
   enabled: []
 _config_version: 40
+timezone: America/Bogota
 session_reset:
   mode: none
 

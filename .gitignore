@@ -21,5 +21,8 @@
 
 # Cron job definitions only (executions.db, locks and heartbeats stay out)
 !cron/
-!cron/detect.json
-!cron/analyze.json
+!cron/jobs.json
+
+# Helper scripts used by cron jobs
+!scripts/
+!scripts/*.sh

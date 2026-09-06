@@ -1,0 +1,50 @@
+{
+  "jobs": [
+    {
+      "id": "35baa1417c72",
+      "name": "trm-diario-linear",
+      "prompt": "Arriba tienes la salida del script trm_fetch.sh con el precio del dólar (USD/COP) de hoy.\n\nTu tarea:\n1. Redacta un título corto con el formato: \"TRM <fecha> — USD/COP <valor>\".\n2. Redacta un cuerpo en Markdown con: valor, fuente, vigencia (o fecha de actualización) y una línea que aclare si el dato es la TRM oficial o una tasa de mercado de respaldo.\n3. Crea el issue en Linear ejecutando exactamente este comando en la terminal, sustituyendo título y cuerpo:\n   bash \"$HERMES_HOME/scripts/linear_create_issue.sh\" \"<título>\" \"<cuerpo>\"\n4. Responde únicamente con la línea \"created ...\" que devuelve el script. Si el script falla, reporta el error textual y no inventes un resultado.\n\nNo inventes valores. Si el script no entregó un precio, di que no hay dato y no crees el issue.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": "fireworks",
+      "model_snapshot": "accounts/fireworks/models/deepseek-v4-flash-0731",
+      "base_url": null,
+      "script": "trm_fetch.sh",
+      "no_agent": false,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 14 * * *",
+        "display": "0 14 * * *"
+      },
+      "schedule_display": "0 14 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 4
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-09-05T18:47:14.830946-05:00",
+      "next_run_at": "2026-09-06T14:00:00-05:00",
+      "last_run_at": "2026-09-05T19:17:48.440068-05:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "last_delivery_unverified": null,
+      "failure_streak": 0,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": null,
+      "workdir": null,
+      "fire_claim": null
+    }
+  ],
+  "updated_at": "2026-09-05T19:17:48.440698-05:00"
+}
