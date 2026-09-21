@@ -8,12 +8,21 @@ terminal:
   backend: local
 display:
   tool_progress: all
+timezone: America/Bogota
 plugins:
   enabled: []
 _config_version: 40
-timezone: America/Bogota
 session_reset:
   mode: none
+mcp_servers:
+  engram:
+    command: engram
+    args:
+      - mcp
+      - --tools=agent
+      - --project
+      - riskship-runtime
+    enabled: true
 
 # ── Security ──────────────────────────────────────────────────────────
 # Secret redaction is ON by default — strings that look like API keys,
