@@ -163,6 +163,59 @@ hermes -p riskship mcp add engram --command engram --args mcp --tools=agent --pr
 desarrollo del repositorio. La base de datos queda en `~/.engram/engram.db` del
 usuario que ejecuta el gateway y no se sincroniza entre máquinas.
 
+### Conectar Discord (opcional)
+
+Discord funciona como canal de mensajería del agente. El gateway es por perfil:
+todos los comandos llevan `-p riskship` (o el alias `riskship`). Un `hermes gateway ...`
+sin perfil apunta a `default` y lee `~/.hermes/.env`, aunque se ejecute desde el
+directorio del perfil.
+
+1. Crear la aplicación y el bot en el
+   [Developer Portal](https://discord.com/developers/applications). En **Bot →
+   Privileged Gateway Intents** activar **Message Content Intent** y **Server
+   Members Intent**, y guardar con **Save Changes**.
+2. Generar el token en **Bot → Reset Token**. Se muestra una sola vez.
+3. Invitar el bot al servidor, reemplazando `<app_id>` por el Application ID:
+
+   ```text
+   https://discord.com/oauth2/authorize?client_id=<app_id>&scope=bot+applications.commands&permissions=274878286912
+   ```
+
+4. Agregar las variables a `~/.hermes/profiles/riskship/.env` en el servidor, sin
+   comillas ni espacios. El ID de usuario se copia desde Discord con el modo
+   desarrollador activo (clic derecho sobre el usuario → **Copy User ID**).
+
+   ```bash
+   DISCORD_BOT_TOKEN=<token>
+   DISCORD_ALLOWED_USERS=<id_de_usuario>
+   ```
+
+5. Reiniciar el gateway y escribirle al bot por mensaje directo:
+
+   ```bash
+   hermes -p riskship gateway restart
+   ```
+
+Para recibir los mensajes proactivos del agente en un canal, ejecutar `/sethome`
+en ese canal.
+
+| Síntoma | Causa | Solución |
+|---------|-------|----------|
+| `Improper token has been passed` y la unidad termina con `status=78/CONFIG` | `DISCORD_BOT_TOKEN` inválido, revocado o copiado de otro campo (Client Secret, Application ID) | Regenerar el token y actualizar el `.env` del perfil. |
+| `privileged Gateway Intents are not enabled` | Falta **Message Content Intent** o no se guardaron los cambios | Activarlo en el Developer Portal, **Save Changes** y reiniciar. |
+| El bot está en línea pero no responde | Sin lista de acceso, el gateway rechaza todos los mensajes | Definir `DISCORD_ALLOWED_USERS` y reiniciar. |
+| `gateway setup` informa `Discord: already configured` con otro token | Se ejecutó sin `-p riskship` y leyó el perfil `default` | Repetir el comando con `-p riskship`. |
+
+Verificar el token sin pasar por Hermes:
+
+```bash
+set -a; source ~/.hermes/profiles/riskship/.env; set +a
+curl -s -H "Authorization: Bot $DISCORD_BOT_TOKEN" https://discord.com/api/v10/users/@me
+```
+
+Una respuesta JSON con el nombre del bot confirma que el token es válido; un `401`
+indica que hay que regenerarlo.
+
 ## Variables de entorno
 
 | Variable | Obligatoria | Uso |
@@ -171,6 +224,8 @@ usuario que ejecuta el gateway y no se sincroniza entre máquinas.
 | `LINEAR_API_KEY` | Sí | Crear issues en Linear. Necesita permiso de escritura. |
 | `LINEAR_TEAM_KEY` | No | Clave del equipo de Linear (por ejemplo `RIS`). Si falta, se usa el primer equipo visible. |
 | `NEON_READONLY_URL` | No | Postgres de Neon, solo lectura. Reservada para los cron de detección; aún no se usa. |
+| `DISCORD_BOT_TOKEN` | No | Token del bot de Discord. Ver [Conectar Discord](#conectar-discord-opcional). |
+| `DISCORD_ALLOWED_USERS` | No | IDs de usuario de Discord autorizados, separados por coma. Sin esta lista el bot rechaza todos los mensajes. |
 
 ## Estructura del repositorio
 

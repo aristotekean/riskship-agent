@@ -24,3 +24,11 @@ env_requires:
     description: "Endpoint MCP de Engram"
     required: false
     default: ""
+  - name: DISCORD_BOT_TOKEN
+    description: "Token del bot de Discord (Developer Portal, sección Bot). Solo si se usa Discord como canal"
+    required: false
+    default: ""
+  - name: DISCORD_ALLOWED_USERS
+    description: "IDs de usuario de Discord autorizados a hablar con el bot, separados por coma"
+    required: false
+    default: ""
