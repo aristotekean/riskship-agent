@@ -115,6 +115,54 @@ Si se instaló con deploy key, alcanza con el segundo comando: Hermes vuelve a
 clonar el repositorio. En ambos casos `.env`, bases de datos y estado de ejecución
 se conservan.
 
+#### Cambios en `config.yaml`
+
+`profile update` **no** sobrescribe un `config.yaml` existente, para conservar los
+ajustes locales del servidor. Un cambio versionado en ese archivo (por ejemplo, un
+servidor MCP nuevo) no llega al perfil instalado con el update normal.
+
+| Caso | Qué hacer en el VPS |
+|------|---------------------|
+| Cambio aditivo (servidor MCP) | Repetir el mismo comando que lo generó, por ejemplo `hermes -p riskship mcp add ...`. No toca el resto del archivo. |
+| Dejar el VPS idéntico al repositorio | `hermes profile update riskship --force-config -y`. Descarta los ajustes locales. |
+
+Antes de usar `--force-config`, comparar ambos archivos:
+
+```bash
+diff /root/riskship-agent/config.yaml ~/.hermes/profiles/riskship/config.yaml
+```
+
+Después de cualquier cambio en `config.yaml`, reiniciar el gateway:
+
+```bash
+sudo systemctl restart hermes-gateway-riskship
+```
+
+#### Memoria persistente (Engram)
+
+El agente usa [Engram](https://github.com/Gentleman-Programming/engram) como
+servidor MCP por stdio. El binario se instala aparte y debe quedar en
+`/usr/local/bin`, que está en el `PATH` por defecto de systemd:
+
+```bash
+ARCH=$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/')
+curl -fsSL -o /tmp/engram.tgz "https://github.com/Gentleman-Programming/engram/releases/download/v2.0.0/engram_2.0.0_linux_${ARCH}.tar.gz"
+sudo tar -xzf /tmp/engram.tgz -C /usr/local/bin engram
+hermes -p riskship mcp test engram
+```
+
+En una instalación nueva el servidor ya viene declarado en `config.yaml`. Si el
+perfil se instaló antes de ese cambio, `mcp test` responde `not found in config` y
+hay que agregarlo a mano:
+
+```bash
+hermes -p riskship mcp add engram --command engram --args mcp --tools=agent --project riskship-runtime
+```
+
+`--project riskship-runtime` separa las memorias del agente de las notas de
+desarrollo del repositorio. La base de datos queda en `~/.engram/engram.db` del
+usuario que ejecuta el gateway y no se sincroniza entre máquinas.
+
 ## Variables de entorno
 
 | Variable | Obligatoria | Uso |
