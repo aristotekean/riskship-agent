@@ -95,11 +95,13 @@ Requisitos del servidor: Linux, Python 3.11 a 3.13, `git`, `curl` y `python3` en
 
 ```bash
 hermes -p riskship cron list
-hermes -p riskship cron run trm-diario-linear
+hermes -p riskship cron run riesgo-envio-neon
 ```
 
-Si el segundo comando termina en `succeeded` y aparece un issue nuevo en Linear, el
-agente está operativo.
+La primera corrida solo inicializa la marca de agua (no evalúa el histórico cargado).
+Para comprobar el ciclo completo, insertar una fila nueva en `shipments` y volver a
+correr el job: si termina en `succeeded`, imprime la probabilidad y, cuando supera el
+umbral, aparece un issue nuevo en Linear, el agente está operativo.
 
 ### Actualizar el agente
 
@@ -223,7 +225,7 @@ indica que hay que regenerarlo.
 | `FIREWORKS_API_KEY` | Sí | Inferencia del modelo. Las keys de Fireworks empiezan con `fw_`. |
 | `LINEAR_API_KEY` | Sí | Crear issues en Linear. Necesita permiso de escritura. |
 | `LINEAR_TEAM_KEY` | No | Clave del equipo de Linear (por ejemplo `RIS`). Si falta, se usa el primer equipo visible. |
-| `NEON_READONLY_URL` | No | Postgres de Neon, solo lectura. Reservada para los cron de detección; aún no se usa. |
+| `NEON_READONLY_URL` | Sí, para `riesgo-envio-neon` | Cadena de conexión Postgres de Neon, solo lectura, de la base con la tabla `shipments`. El cron la usa por HTTP (`https://<host>/sql`), así que la URL directa o la del pooler sirven igual. |
 | `DISCORD_BOT_TOKEN` | No | Token del bot de Discord. Ver [Conectar Discord](#conectar-discord-opcional). |
 | `DISCORD_ALLOWED_USERS` | No | IDs de usuario de Discord autorizados, separados por coma. Sin esta lista el bot rechaza todos los mensajes. |
 
@@ -236,12 +238,18 @@ indica que hay que regenerarlo.
 | `config.yaml` | Modelo, proveedor, zona horaria (`America/Bogota`) y backend de terminal. |
 | `cron/jobs.json` | Definición de los cron jobs. Hermes también escribe aquí el estado de cada ejecución. |
 | `scripts/` | Scripts auxiliares que usan los cron jobs. |
+| `skills/riesgo-envio/` | Skill propia y autónoma: evalúa el riesgo de pérdida de un envío con la red neuronal de `riskship-rna`, cuyo pickle exportado vive en `model/`, y crea un ticket en Linear por cada envío por encima del umbral (65 % por defecto). `scripts/predict_risk.py` declara sus dependencias inline y corre con `uv run` (requisito: `uv` en el host; la primera ejecución descarga el entorno). `scripts/evaluar_riesgo.sh` acepta `--dry-run` y `--threshold`. Para actualizar el modelo: `uv run export_model.py` en el proyecto y copiar `exports/*.pickle` y `*.json` a `model/`. |
 
 ## Cron jobs
 
 | Job | Horario | Qué hace |
 |-----|---------|----------|
-| `trm-diario-linear` | Diario, 14:00 Colombia | Obtiene la TRM oficial USD/COP desde datos.gov.co y crea un issue en Linear con el valor y su vigencia. |
+| `riesgo-envio-neon` | Cada hora, en punto | `scripts/neon_fetch_shipments.sh` consulta en Neon (endpoint HTTP SQL, sin `psql`) las filas insertadas en la tabla `shipments` desde la última corrida, puntúa un ítem por envío con el modelo del skill `riesgo-envio` y crea un ticket en Linear por cada envío que supere el umbral (`RISKSHIP_THRESHOLD`, 65 % por defecto; `RISKSHIP_LIMIT` filas por corrida, 200). El agente solo resume la salida. La marca de agua es el último `id` procesado, en `cron/riesgo_envio.watermark`; la primera corrida solo la inicializa en el `id` máximo, así el histórico cargado nunca genera tickets. `RISKSHIP_DRY_RUN=1` evalúa sin tocar Linear. |
+
+La tabla `shipments` espeja `dataset.parquet` del proyecto `riskship-rna`: sus 58 columnas con
+los mismos nombres, más `id` (bigserial, marca de agua del cron) y `created_at`. El DDL
+(`sql/shipments.sql`) y el cargador (`load_neon.py`) viven en ese proyecto, no en este
+perfil; se corren una sola vez desde allí con `NEON_DATABASE_URL` (rol con escritura).
 
 Los scripts corren con el `python3` del sistema, no con el entorno virtual de Hermes.
 Evitar sintaxis de Python 3.12 o superior en `scripts/`.

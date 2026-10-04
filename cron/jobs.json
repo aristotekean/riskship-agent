@@ -1,17 +1,19 @@
 {
   "jobs": [
     {
-      "id": "35baa1417c72",
-      "name": "trm-diario-linear",
-      "prompt": "Arriba tienes la salida del script trm_fetch.sh con el precio del dólar (USD/COP) de hoy.\n\nTu tarea:\n1. Redacta un título corto con el formato: \"TRM <fecha> — USD/COP <valor>\".\n2. Redacta un cuerpo en Markdown con: valor, fuente, vigencia (o fecha de actualización) y una línea que aclare si el dato es la TRM oficial o una tasa de mercado de respaldo.\n3. Crea el issue en Linear ejecutando exactamente este comando en la terminal, sustituyendo título y cuerpo:\n   bash \"$HERMES_HOME/scripts/linear_create_issue.sh\" \"<título>\" \"<cuerpo>\"\n4. Responde únicamente con la línea \"created ...\" que devuelve el script. Si el script falla, reporta el error textual y no inventes un resultado.\n\nNo inventes valores. Si el script no entregó un precio, di que no hay dato y no crees el issue.",
-      "skills": [],
-      "skill": null,
+      "id": "d5dd0d6e81a8",
+      "name": "riesgo-envio-neon",
+      "prompt": "Arriba tienes la salida del script neon_fetch_shipments.sh. Ese script ya consultó en Neon los envíos nuevos, los evaluó con el modelo RiskShip y, para cada envío cuya probabilidad de pérdida superó el umbral, ya creó el ticket en Linear (líneas \"created <ID> <url>\"). No vuelvas a ejecutar el script ni crees tickets por tu cuenta.\n\nTu tarea:\n1. Si la salida dice que no hay envíos nuevos, responde solo: \"Sin envíos nuevos en Neon; nada que evaluar.\"\n2. Si hay envíos, responde en español neutro con: cuántos se evaluaron, cuántos superaron el umbral y, por cada ticket creado, su identificador y URL tal como los imprimió el script. Agrega una línea recordando que la probabilidad está en la escala de la muestra de entrenamiento y no indica causa.\n3. Si la salida contiene \"ERROR\", reporta el error textual y di que no se evaluó nada. No infieras causas ni afirmes que existe un ticket que el script no imprimió.",
+      "skills": [
+        "riesgo-envio"
+      ],
+      "skill": "riesgo-envio",
       "model": null,
       "provider": null,
       "provider_snapshot": "fireworks",
       "model_snapshot": "accounts/fireworks/models/deepseek-v4-flash-0731",
       "base_url": null,
-      "script": "trm_fetch.sh",
+      "script": "neon_fetch_shipments.sh",
       "no_agent": false,
       "monitor_script": null,
       "monitor_url": null,
@@ -19,22 +21,22 @@
       "context_from": null,
       "schedule": {
         "kind": "cron",
-        "expr": "0 15 * * *",
-        "display": "0 15 * * *"
+        "expr": "0 * * * *",
+        "display": "0 * * * *"
       },
-      "schedule_display": "0 15 * * *",
+      "schedule_display": "0 * * * *",
       "repeat": {
         "times": null,
-        "completed": 4
+        "completed": 0
       },
       "enabled": true,
       "state": "scheduled",
       "paused_at": null,
       "paused_reason": null,
-      "created_at": "2026-09-05T18:47:14.830946-05:00",
-      "next_run_at": "2026-09-07T15:00:00-05:00",
-      "last_run_at": "2026-09-05T19:17:48.440068-05:00",
-      "last_status": "ok",
+      "created_at": "2026-10-04T17:55:13.722155-05:00",
+      "next_run_at": "2026-10-04T18:00:00-05:00",
+      "last_run_at": null,
+      "last_status": null,
       "last_error": null,
       "last_delivery_error": null,
       "last_delivery_unverified": null,
@@ -42,9 +44,8 @@
       "deliver": "local",
       "origin": null,
       "enabled_toolsets": null,
-      "workdir": null,
-      "fire_claim": null
+      "workdir": null
     }
   ],
-  "updated_at": "2026-09-05T19:29:23.936006-05:00"
+  "updated_at": "2026-10-04T18:02:19.425012-05:00"
 }

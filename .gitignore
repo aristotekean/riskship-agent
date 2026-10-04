@@ -18,6 +18,8 @@
 !skills/formato-ticket/**
 !skills/deduplicacion/
 !skills/deduplicacion/**
+!skills/riesgo-envio/
+!skills/riesgo-envio/**
 
 # Cron job definitions only (executions.db, locks and heartbeats stay out)
 !cron/
