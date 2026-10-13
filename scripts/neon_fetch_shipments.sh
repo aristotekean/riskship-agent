@@ -63,7 +63,7 @@ since="$(cat "$WATERMARK")"
 neon_sql "SELECT id, $FEATURES FROM shipments WHERE id > \$1::bigint ORDER BY id LIMIT $LIMIT" "[\"$since\"]"
 
 # One row per shipment (rows are items), without created_at/id -> shipments.json
-new_watermark="$(WORK="$work" python3 - <<'PY'
+new_watermark="$(WORK="$work" python3 - 2> "$work/counts.txt" <<'PY'
 import json, os, sys
 work = os.environ["WORK"]
 data = json.load(open(os.path.join(work, "response.json")))
@@ -81,7 +81,7 @@ json.dump(shipments, open(os.path.join(work, "shipments.json"), "w"), ensure_asc
 print(max((int(r["id"]) for r in rows), default=0))
 print(f"{len(rows)} {len(shipments)}", file=sys.stderr)
 PY
-)" 2> "$work/counts.txt"
+)"
 read -r n_rows n_shipments < "$work/counts.txt"
 
 echo "Ventana consultada: filas de shipments con id > $since (maximo $LIMIT por corrida)."
